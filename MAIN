@@ -1,74 +1,89 @@
-import { useState, useEffect } from 'react';
-import { db, storage } from '../firebase';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import styles from '../styles/Home.module.css';
-
-export default function Home() {
-  const [name, setName] = useState('');
-  const [message, setMessage] = useState('');
-  const [file, setFile] = useState(null);
-  const [submissions, setSubmissions] = useState([]);
-
-  useEffect(() => {
-    async function fetchSubmissions() {
-      const querySnapshot = await getDocs(collection(db, 'submissions'));
-      setSubmissions(querySnapshot.docs.map(doc => doc.data()));
-    }
-    fetchSubmissions();
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    let fileURL = '';
-    
-    if (file) {
-      const fileRef = ref(storage, `uploads/${file.name}`);
-      await uploadBytes(fileRef, file);
-      fileURL = await getDownloadURL(fileRef);
-    }
-
-    await addDoc(collection(db, 'submissions'), {
-      name,
-      message,
-      fileURL,
-      timestamp: new Date(),
-    });
-
-    setName('');
-    setMessage('');
-    setFile(null);
-    window.location.reload();
-  };
-
-  return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Happy 18th Aaliyah, we love you!</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <input 
-          type="text" 
-          placeholder="Your Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Write a message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button type="submit">Submit</button>
-      </form>
-      <div className={styles.gallery}>
-        {submissions.map((item, index) => (
-          <div key={index} className={styles.card}>
-            <h3>{item.name}</h3>
-            <p>{item.message}</p>
-            {item.fileURL && <img src={item.fileURL} alt="upload" className={styles.image} />}
-          </div>
-        ))}
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 18th Aaliyah!</title>
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            text-align: center;
+            background-color: #fffaf0;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        textarea, input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        .gallery {
+            margin-top: 20px;
+        }
+        .submission {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            background: white;
+        }
+        img, video {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Happy 18th Aaliyah, we love you!</h1>
+    <div class="container">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <textarea id="message" placeholder="Write a message..."></textarea>
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <button onclick="submitEntry()">Submit</button>
+        <div class="gallery" id="gallery"></div>
     </div>
-  );
-}
+
+    <script>
+        function submitEntry() {
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            const fileInput = document.getElementById('fileInput').files[0];
+            
+            if (!name) {
+                alert("Please enter your name.");
+                return;
+            }
+            
+            let reader = new FileReader();
+            reader.onload = function(event) {
+                const fileURL = event.target.result;
+                const type = fileInput ? fileInput.type.split('/')[0] : null;
+                const entryHTML = `<div class='submission'><h3>${name}</h3><p>${message}</p>` +
+                    (fileInput ? (type === 'image' ? `<img src='${fileURL}'>` : `<video controls src='${fileURL}'></video>`) : '') + `</div>`;
+                
+                document.getElementById('gallery').innerHTML += entryHTML;
+                localStorage.setItem('submissions', document.getElementById('gallery').innerHTML);
+            };
+            
+            if (fileInput) {
+                reader.readAsDataURL(fileInput);
+            } else {
+                const entryHTML = `<div class='submission'><h3>${name}</h3><p>${message}</p></div>`;
+                document.getElementById('gallery').innerHTML += entryHTML;
+                localStorage.setItem('submissions', document.getElementById('gallery').innerHTML);
+            }
+        }
+
+        window.onload = function() {
+            document.getElementById('gallery').innerHTML = localStorage.getItem('submissions') || '';
+        };
+    </script>
+</body>
+</html>
