@@ -1,0 +1,74 @@
+import { useState, useEffect } from 'react';
+import { db, storage } from '../firebase';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import styles from '../styles/Home.module.css';
+
+export default function Home() {
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+  const [file, setFile] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+
+  useEffect(() => {
+    async function fetchSubmissions() {
+      const querySnapshot = await getDocs(collection(db, 'submissions'));
+      setSubmissions(querySnapshot.docs.map(doc => doc.data()));
+    }
+    fetchSubmissions();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let fileURL = '';
+    
+    if (file) {
+      const fileRef = ref(storage, `uploads/${file.name}`);
+      await uploadBytes(fileRef, file);
+      fileURL = await getDownloadURL(fileRef);
+    }
+
+    await addDoc(collection(db, 'submissions'), {
+      name,
+      message,
+      fileURL,
+      timestamp: new Date(),
+    });
+
+    setName('');
+    setMessage('');
+    setFile(null);
+    window.location.reload();
+  };
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Happy 18th Aaliyah, we love you!</h1>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <input 
+          type="text" 
+          placeholder="Your Name" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Write a message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        <button type="submit">Submit</button>
+      </form>
+      <div className={styles.gallery}>
+        {submissions.map((item, index) => (
+          <div key={index} className={styles.card}>
+            <h3>{item.name}</h3>
+            <p>{item.message}</p>
+            {item.fileURL && <img src={item.fileURL} alt="upload" className={styles.image} />}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
