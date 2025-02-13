@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #FFE5F4;
+            margin: 0;
+            padding: 20px;
+            font-family: "Times New Roman", Times, serif;
+        }
+        
+        .birthday-message {
+            color: #FF69B4;
+            font-size: 48px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        
+        .star {
+            color: #FFD700;
+            font-size: 24px;
+            position: fixed;
+            animation: twinkle 1.5s ease-in-out infinite;
+        }
+        
+        .content-section {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .section-title {
+            color: #FF69B4;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .submit-button {
+            background-color: #FF69B4;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        
+        .submit-button:hover {
+            background-color: #FF1493;
+        }
+
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .message-card {
+            background: #FFF5F9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-text {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .message-author {
+            color: #FF69B4;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: right;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars -->
+    <div class="star" style="top: 20%; left: 20%">★</div>
+    <div class="star" style="top: 30%; right: 25%">★</div>
+    <div class="star" style="bottom: 25%; left: 30%">★</div>
+    <div class="star" style="bottom: 35%; right: 20%">★</div>
+    
+    <!-- Birthday Message -->
+    <div class="birthday-message">
+        Happy 18th, Aaliyah!<br>
+        We love you ❤️
+    </div>
+    
+    <!-- Form Section -->
+    <div class="content-section">
+        <h2 class="section-title">Share Your Birthday Wishes!</h2>
+        <p>Click below to submit your photos, videos, and messages for Aaliyah:</p>
+        <!-- Replace FORM-URL with your Google Form URL -->
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSekFCViam5AXFu4M1ei-guU0q1Amarm98SzZFpJ3xf8e0dG6w/viewform?usp=dialog" target="_blank" class="submit-button">
+            Submit Your Birthday Wishes! 🎉
+        </a>
+    </div>
+
+    <!-- Messages Section -->
+    <div class="content-section">
+        <h2 class="section-title">Birthday Messages</h2>
+        <div class="messages-grid">
+            <!-- Example messages - you'll add more as they come in -->
+            <div class="message-card">
+                <p class="message-text">Happy 18th birthday! You've grown into such an amazing person! 💕</p>
+                <p class="message-author">- S</p>
+            </div>
+            <div class="message-card">
+                <p class="message-text">Wishing you all the joy and happiness! May all your dreams come true! 🎉</p>
+                <p class="message-author">- M</p>
+            </div>
+            <!-- Add more message cards as people submit them -->
+        </div>
+    </div>
+    
+    <!-- Gallery Section -->
+    <div class="content-section">
+        <h2 class="section-title">Photo & Video Memories</h2>
+        <!-- Replace ALBUM-URL with your Google Photos embed URL -->
+        <iframe src="<a href="https://photos.app.goo.gl/EX5KxfdsLUUa7Wc26" title=""><img src="" width="100%" style="max-width: 850px;" alt=""></a><br>Provided by <a href="" target="_blank"></a>" width="100%" height="500px" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+    </div>
+</body>
+</html>
