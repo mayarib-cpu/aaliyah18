@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Happy 18th Birthday Aaliyah!</title>
+    <style>
+        /* ... (previous styles remain the same) ... */
+    </style>
+</head>
+<body>
+    <h1>
+        <span class="star">★</span>
+        Happy 18th Birthday Aaliyah!
+        <span class="star">★</span>
+    </h1>
+
+    <input type="file" id="fileInput" accept="image/*,video/*">
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Add Photo/Video</button>
+    <input type="text" id="nameInput" placeholder="Your Name" style="padding: 10px; margin: 20px;">
+    <input type="text" id="messageInput" placeholder="Your Message" style="padding: 10px; margin: 20px;">
+    <button class="upload-btn" onclick="addItem()">Submit</button>
+
+    <div class="gallery" id="gallery"></div>
+
+    <!-- Add Supabase client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.10.0/dist/umd/supabase.js"></script>
+
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = "'https://ajinoluyglrkqifnmbng.supabase.co'";  // Replace with your Supabase URL
+        const SUPABASE_ANON_KEY = "process.env.SUPABASE_KEY
+const";  // Replace with your Supabase anon key
+
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Load gallery items on page load
+        async function loadGallery() {
+            const { data, error } = await supabase
+                .from('gallery_items') // Your table name in Supabase
+                .select('*');
+
+            if (error) {
+                console.error('Error loading gallery items:', error);
+                return;
+            }
+
+            data.forEach(item => displayItem(item));
+        }
+
+        // Fetch the gallery on load
+        loadGallery();
+
+        async function addItem() {
+            const fileInput = document.getElementById('fileInput');
+            const nameInput = document.getElementById('nameInput');
+            const messageInput = document.getElementById('messageInput');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const name = nameInput.value;
+                const message = messageInput.value;
+
+                // Upload the file to Supabase storage
+                const { data: fileData, error: fileError } = await supabase
+                    .storage
+                    .from('gallery') // Your bucket name
+                    .upload(`public/${file.name}`, file);
+
+                if (fileError) {
+                    console.error('Error uploading file:', fileError);
+                    return;
+                }
+
+                // Insert item into gallery_items table
+                const { data, error } = await supabase
+                    .from('gallery_items')
+                    .insert([
+                        {
+                            type: file.type.split('/')[0],  // Either 'image' or 'video'
+                            url: fileData.Key,  // URL to the file in Supabase storage
+                            name: name,
+                            message: message
+                        }
+                    ]);
+
+                if (error) {
+                    console.error('Error inserting item into database:', error);
+                    return;
+                }
+
+                // Display the new item
+                displayItem(data[0]);
+
+                // Clear inputs
+                fileInput.value = '';
+                nameInput.value = '';
+                messageInput.value = '';
+            }
+        }
+
+        function displayItem(item) {
+            const gallery = document.getElementById('gallery');
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+
+            const fileUrl = supabase.storage.from('gallery').getPublicUrl(item.url).publicURL;
+
+            if (item.type === 'image') {
+                div.innerHTML = `
+                    <img src="${fileUrl}" alt="Gallery item">
+                    <p class="name">${item.name}</p>
+                    <p>${item.message}</p>
+                `;
+            } else {
+                div.innerHTML = `
+                    <video controls>
+                        <source src="${fileUrl}" type="video/mp4">
+                    </video>
+                    <p class="name">${item.name}</p>
+                    <p>${item.message}</p>
+                `;
+            }
+
+            gallery.appendChild(div);
+        }
+    </script>
+</body>
+</html>
